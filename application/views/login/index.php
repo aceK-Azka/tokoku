@@ -23,5 +23,7 @@
 
     <p><?php echo validation_errors(); ?></p>
     <p><?php echo isset($error) ? $error : ''; ?></p>
+    <br>
+    <a href="<?= $this->load->view('login/form_signup'); ?>">Daftar</a>
 </body>
 </html>

@@ -30,8 +30,8 @@ class Login extends CI_Controller {
         } else {
             // Login gagal
             echo "failed";
+            redirect('login');
         }
-        // redirect('home/index');
     }
 
     public function do_signup() {
