@@ -24,6 +24,8 @@
     <p><?php echo validation_errors(); ?></p>
     <p><?php echo isset($error) ? $error : ''; ?></p>
     <br>
-    <a href="<?= $this->load->view('login/form_signup'); ?>">Daftar</a>
+    <?= $this->session->flashdata('msg'); ?>
+    <br>
+    <a href="<?= site_url('login/signup'); ?>">Daftar</a>
 </body>
 </html>

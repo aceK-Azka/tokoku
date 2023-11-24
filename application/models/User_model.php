@@ -16,6 +16,19 @@ class User_model extends CI_Model {
         }
         else return true;
     }
+
+    public function check_signup($username, $password) {
+        // Mengambil 'password' dari 'users' sesuai `username` ke $return
+        $return = $this->db->get_where('users', array('username' => $username));
+        // Mengecek $return == parameter $password
+        if ($return != NULL) {
+            $this->session->set_flashdata('msg', '<p>Username sudah dipakai, silahkan ganti</p>');
+            return false;
+        } else {
+            
+            return true;
+        } 
+    }
 }
 
 // Code Archive

@@ -12,6 +12,10 @@ class Login extends CI_Controller {
         $this->load->view('login/index');
     }
 
+    public function signup() {
+        $this->load->view('login/form_signup');
+    }
+
    // Contoh di dalam Login.php
     public function do_login() {
         $this->load->model('user_model'); // Pastikan model di-load
@@ -38,10 +42,7 @@ class Login extends CI_Controller {
         $this->load->model('user_model'); // Pastikan model di-load
         $username = $this->input->post('username');
         $password = $this->input->post('password');
-        $data = array(
-            'username' => $username,
-            'logged_in' => true
-        );
+        $category = $this->input->post('category');
 
         if ($this->user_model->check_login($username, $password)) {
             // Login berhasil
