@@ -27,14 +27,7 @@
                 <ul>
                     <?php foreach ($menu as $item): ?>
                         <li>
-                            <?= $item['name']; ?> - Rating:
-                            <?php 
-                            if(isset($item['rating'])){
-                                echo number_format($item['rating'], 1);
-                            } else {
-                                echo 'Belum ada';
-                            }
-                            ?>
+                            <?= $item['name']; ?>
                         </li>
                     <?php endforeach; ?>
                 </ul>
@@ -52,3 +45,16 @@
     <script src="<?= base_url('assets/script.js'); ?>"></script>
 </body>
 </html>
+
+
+<!-- Future Addition:
+1. Rating Info
+<= $item['name']; ?> - Rating:
+                            <php 
+                            if(isset($item['rating'])){
+                                echo number_format($item['rating'], 1);
+                            } else {
+                                echo 'Belum ada';
+                            }
+                            ?>
+-->

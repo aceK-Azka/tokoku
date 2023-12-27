@@ -20,7 +20,7 @@
         <ul>
             <?php foreach ($menu as $item): ?>
                 <li>
-                    <?= $item['name']; ?> - Rating: <?= number_format($item['rating'], 1); ?>
+                    <?= $item['name']; ?>
                 </li>
             <?php endforeach; ?>
         </ul>
@@ -28,6 +28,11 @@
         <p>No menu available.</p>
     <?php endif; ?>
 
-    <a href="<?= base_url('login/logout'); ?>">Logout</a>
+    <a href="<?= site_url('home'); ?>">Back</a><br>
+    <a href="<?= site_url('login/logout'); ?>">Logout</a>
 </body>
 </html>
+
+<!-- Future Addition:
+
+-->

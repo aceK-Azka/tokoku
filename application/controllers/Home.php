@@ -4,13 +4,12 @@ class Home extends CI_Controller {
         parent::__construct();
         $this->load->helper('url');
         $this->load->model('menu_model');
-        $this->load->model('rating_model');
         $this->load->library('session');
     }
 
     public function index() {
         if ($this->session->userdata('logged_in')) {
-            $data['menu'] = $this->menu_model->getMenuWithRating();
+            $data['menu'] = $this->menu_model->getMenu();
             $this->load->view('home/index', $data);
         } else {
             redirect('login');

@@ -7,6 +7,8 @@
 </head>
 <body>
     <h1>Upload Menu</h1>
+    <br>
+    <a href="<?=site_url('menu/show_menu')?>">Back</a>
 
     <?php echo $error; ?>
 

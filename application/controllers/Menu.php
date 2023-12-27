@@ -3,14 +3,13 @@ class Menu extends CI_Controller {
     public function __construct() {
         parent::__construct();
         $this->load->helper(array('form', 'url'));
-        $this->load->model('Menu_model');
-        $this->load->model('Rating_model');
+        $this->load->model('menu_model');
         $this->load->library('session');
     }
 
     public function show_menu() {
         if ($this->session->userdata('logged_in')) {
-            $data['menu'] = $this->menu_model->getMenuWithRating();
+            $data['menu'] = $this->menu_model->getMenu();
             $this->load->view('menu/show', $data);
         } else {
             redirect('login');
