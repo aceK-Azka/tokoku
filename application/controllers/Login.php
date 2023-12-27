@@ -24,7 +24,7 @@ class Login extends CI_Controller {
         $data = array(
             'username' => $username,
             'logged_in' => true,
-            'seller_id' => 1 // Perlu dibuat Model pemanggilan ID berdasarkan 'Seller'
+            'seller_id' => $this->user_model->getSellerID($username) // Perlu dibuat Model pemanggilan ID berdasarkan 'Seller'
         );
 
         if ($this->user_model->check_login($username, $password)) {
@@ -44,13 +44,13 @@ class Login extends CI_Controller {
         $password = $this->input->post('password');
         $category = $this->input->post('category');
 
-        if ($this->user_model->check_login($username, $password)) {
-            // Login berhasil
-            $this->session->set_userdata($data);
-            $this->load->view('home/index');
+        if ($this->user_model->check_signup($username, $password, $category)) {
+            // Daftar berhasil
+            redirect('login');
         } else {
-            // Login gagal
+            // Daftar gagal
             echo "failed";
+            redirect('login/signup');
         }
     }
 
