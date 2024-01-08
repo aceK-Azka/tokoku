@@ -20,7 +20,10 @@
         <ul>
             <?php foreach ($menu as $item): ?>
                 <li>
-                    <?= $item['name']; ?>
+                    <img src="<?= base_url('assets/images/menus/'.$item['photo']) ?>" alt="<?= $item['name']; ?>"> <br>
+                    <?= $item['name']; ?> <br>
+                    <?= $item['description']; ?> <br>
+                    <a href="<?= 'https://'.$item['whatsapp_link'] ?>"><button>Pesan</button></a> <br>
                 </li>
             <?php endforeach; ?>
         </ul>
