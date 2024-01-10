@@ -12,7 +12,7 @@
 
     <?php echo $error; ?>
 
-    <?php echo form_open_multipart('menu/do_upload'); ?>
+    <form action="<?=site_url('menu/do_upload')?>" method="post" enctype="multipart/form-data">
 
     <label for="name">Menu Name:</label>
     <input type="text" name="name" required>

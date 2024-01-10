@@ -46,5 +46,5 @@
 			<!-- bottom footer -->
 			
 			<!-- /bottom footer -->
-		
+</footer>
 	

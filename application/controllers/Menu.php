@@ -28,7 +28,7 @@ class Menu extends CI_Controller {
         // Code untuk meng-handle upload menu
         if ($this->session->userdata('logged_in')) {
             if($this->upload()){
-                $this->Menu_model->addMenu();
+                $this->menu_model->addMenu();
                 if($this->db->affected_rows() > 0) {
                     redirect('home');
                 } else {
@@ -56,7 +56,7 @@ class Menu extends CI_Controller {
         $config['upload_path']     = './assets/images/menus/';
         // $config['upload_path']     = 'menus/';
         $config['allowed_types']   = 'jpg|png';
-        $config['max_size']        = '20';
+        $config['max_size']        = '2000';
         $config['max_width']       = '3000';
         $config['max_height']      = '3000';
     
