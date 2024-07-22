@@ -29,13 +29,18 @@ if($websitetitle == ""){
 		<head>
 			
 			<?php
-			
+			// Jika postingan ada, muncul dan menuju url post
+			// Jika tidak ada karena dihapus, redirect/header ke baseurl
 			if(isset($_GET["post"])){
 				$postid = mysqli_real_escape_string($connection, $_GET["post"]);
 				$sql = "SELECT * FROM $tableposts WHERE postid = '$postid'";
 				$result = mysqli_query($connection, $sql);
-				if($result){
+				if(mysqli_num_rows($result) > 0){
 					$title = shorten_text(mysqli_fetch_assoc($result)["title"], 40, ' ...', false) . " - " . $websitetitle;
+				}else{
+					$title = $websitetitle;
+					header('Location: ' . $baseurl);
+					exit;
 				}
 				?>
 				
@@ -112,24 +117,25 @@ if($websitetitle == ""){
 			
 			if(isset($_GET["post"])){
 				?>
-				<div class="section" id="categoriesbar">
+				<!-- DISABLED FOR FUTURE UPDATES -->
+				<!-- <div class="section" id="categoriesbar">
 					<div style="text-align: center; overflow: auto; white-space: nowrap;">
-						<?php
+						<php
 						$sql = "SELECT * FROM $tablecategories ORDER BY category ASC";
 						$result = mysqli_query($connection, $sql);
 						if($result){
 							?>
-							<a href="<?php echo $baseurl ?>#filtercat=all"><div onclick="filtercategory('')" class="categoryblock" style="border: 1px solid <?php echo $maincolor ?>;padding: 10px; cursor: pointer;"><i class="fa fa-tag"></i> <?php echo uilang("All") ?></div></a>
-							<?php
+							<a href="<php echo $baseurl ?>#filtercat=all"><div onclick="filtercategory('')" class="categoryblock" style="border: 1px solid <php echo $maincolor ?>;padding: 10px; cursor: pointer;"><i class="fa fa-tag"></i> <php echo uilang("All") ?></div></a>
+							<php
 							while($row = mysqli_fetch_assoc($result)){
 								?>
-								<a href="<?php echo $baseurl ?>#filtercat=<?php echo $row["category"] ?>"><div onclick="filtercategory('<?php echo $row["category"] ?>')" class="categoryblock" style="border: 1px solid <?php echo $maincolor ?>;padding: 10px; cursor: pointer;"><i class="fa fa-tag"></i> <?php echo $row["category"] ?></div></a>
-								<?php
+								<a href="<php echo $baseurl ?>#filtercat=<php echo $row["category"] ?>"><div onclick="filtercategory('<php echo $row["category"] ?>')" class="categoryblock" style="border: 1px solid <php echo $maincolor ?>;padding: 10px; cursor: pointer;"><i class="fa fa-tag"></i> <php echo $row["category"] ?></div></a>
+								<php
 							}
 						}
 						?>
 					</div>
-				</div>
+				</div> -->
 
 				<div class="section">
 					
@@ -350,51 +356,56 @@ if($websitetitle == ""){
 								
 							</div>
 							
-							<div class="randomvidblock"><?php echo uilang("You may like:") ?></div>
-							<?php
-							$sql = "SELECT * FROM $tableposts ORDER BY RAND() LIMIT 5";
-							$result = mysqli_query($connection, $sql);
-							if(mysqli_num_rows($result) > 0){
-								while($row = mysqli_fetch_assoc($result)){
-									?>
-									<a href="<?php echo $baseurl ?>?post=<?php echo $row["postid"] ?>">
-										<div class="randomvidblock">
-											<?php
-											$imagefile = $row["picture"];
-											if($imagefile == ""){
-												$imagefile = "images/defaultimg.jpg";
-											}else{
-												$imagefile = "pictures/" . $imagefile;
-											}										
-
-											$saleprice = number_format($row["normalprice"], $deccount);
-											$oldprice = "";
-											if($row["discountprice"] != 0){
-												$saleprice = number_format($row["discountprice"], $deccount);
-												$oldprice = "<span style='margin: 0px; margin-top: 20px; text-decoration: line-through; font-size: 12px; margin-right: 10px; color: gray;'>" . $currencysymbol . number_format($row["normalprice"], $deccount) . "</span>";
-											}
-											
-											?>
-											<div class="lilimage" style="background: url(<?php echo $baseurl . $imagefile ?>) no-repeat center center; background-size: cover; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover;"></div>
-											<div class="lildescr">
-												<div class="shorttext" style="font-size: 18px; font-weight: bold;">
-													<?php echo $row["title"] ?><br><i class="fa fa-angle-double-right"></i> <?php echo $oldprice. $currencysymbol . number_format($saleprice, $deccount) ?>
-												</div>
-												<div style="padding-left: 14px;">
-													<p><?php echo shorten_text(strip_tags($row["content"]), 75, ' ...', false) ?></p>
-												</div>
-												<div style="padding-left: 14px;">
-													<p style="color: <?php echo $maincolor ?>; font-weight: bold; font-size: 12px;"><?php if($enablepublishdate){ ?><i class="fa fa-calendar" style="width: 10px;"></i> <?php echo $postdate ?> <?php } ?><i class="fa fa-tag" style="margin-left: 5px; width: 10px;"></i> <?php echo showCatName($row["catid"]) ?></p>
-												</div>
-												
-											</div>
-										</div>
-									</a>
-									<?php
-								}
-							}
-							?>
+							
 						</div>
+					</div>
+					<br>
+					<!-- UPDATED LAYOUT OF RECOMMENDED POST AND FILTERED BY TOKO ACCORDING TO CURRENT POST -->
+					<h2><?php echo uilang("You may like:") ?></h2>
+					<div class="posttableblock" style="display:flex;">
+						<?php
+						$sql = "SELECT * FROM $tableposts ORDER BY RAND() LIMIT 4";
+						$result = mysqli_query($connection, $sql);
+						if(mysqli_num_rows($result) > 0){
+							while($row = mysqli_fetch_assoc($result)){
+							?>
+							<a href="<?php echo $baseurl ?>?post=<?php echo $row["postid"] ?>">
+								<div class="randomvidblock" style="padding:0px; margin-right:5px;">
+									<?php
+										$imagefile = $row["picture"];
+										if($imagefile == ""){
+											$imagefile = "images/defaultimg.jpg";
+										}else{
+											$imagefile = "pictures/" . $imagefile;
+										}										
+
+										$saleprice = number_format($row["normalprice"], $deccount);
+										$oldprice = "";
+										if($row["discountprice"] != 0){
+											$saleprice = number_format($row["discountprice"], $deccount);
+											$oldprice = "<span style='margin: 0px; margin-top: 20px; text-decoration: line-through; font-size: 12px; margin-right: 10px; color: gray;'>" . $currencysymbol . number_format($row["normalprice"], $deccount) . "</span>";
+										}
+												
+										?>
+										<div class="lilimage" style="background: url(<?php echo $baseurl . $imagefile ?>) no-repeat center center; background-size: cover; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover;"></div>
+										<div class="lildescr">
+											<div class="shorttext" style="font-size: 18px; font-weight: bold;">
+												<?php echo $row["title"] ?><br><i class="fa fa-angle-double-right"></i> <?php echo $oldprice. $currencysymbol . $saleprice ?>
+											</div>
+											<div style="padding-left: 14px;">
+												<p><?php echo shorten_text(strip_tags($row["content"]), 75, ' ...', false) ?></p>
+											</div>
+											<div style="padding-left: 14px;">
+												<p style="color: <?php echo $maincolor ?>; font-weight: bold; font-size: 12px;"><?php if($enablepublishdate){ ?><i class="fa fa-calendar" style="width: 10px;"></i> <?php echo $postdate ?> <?php } ?><i class="fa fa-tag" style="margin-left: 5px; width: 10px;"></i> <?php echo showCatName($row["catid"]) ?></p>
+											</div>
+													
+										</div>
+								</div>
+							</a>
+							<?php
+							}
+						}
+						?>
 					</div>
 				</div>
 				<?php
@@ -520,9 +531,11 @@ if($websitetitle == ""){
 										
 										<h2 style="margin-top: 20px;" class="producttitle"><?php echo shorten_text($row["title"], 25, ' ...', false) ?></h2>
 										<h2 style="margin-top: 20px;" class="producttitle"><?php echo "Toko " . shorten_text($row["nama"], 25, ' ...', false) ?></h2>
+										<!-- Menyimpan toko id pada div yang tidak ditampilkan -->
+										<div class="tokoid" style="display: none;"><?php echo $row["tokoid"] ?></div>
 										<div class="realproducttitle" style="display: none"><?php echo $row["title"] ?></div><div class="productoptions" style="display: none"><?php echo $row["options"] ?></div><div style="padding-bottom: 20px; font-size: 25px; font-weight: bold; color: <?php echo $maincolor ?>"><?php echo $oldprice . $currencysymbol . "<span class='thiscurrentpricedisplay'>" . number_format($saleprice, $deccount) ?></span><span style="display: none;" class="thiscurrentprice"><?php echo $saleprice ?></span> <span style="font-size: 12px;">x</span> <input class="productquantity" type="number" value=1 min=1 style="vertical-align: middle; display: inline-block; width: 60px; font-weight: bold; padding: 10px; margin: 5px; border-radius: 0px;" onkeyup="onlyNumbers(this)"></div>
 										<div class="morebutton" onclick="addtocart(<?php echo $productindex . ',' . $row['nomor_wa'] ?>)"><i class="fa fa-shopping-cart"></i> <?php echo uilang("Order Now") ?></div>
-										<div style="padding: 20px;"><a onclick="showmore(<?php echo $productindex ?>)" class="textlink whatsmorebutton" style="cursor: pointer; text-decoration: none;"><i class="fa fa-chevron-down"></i> <?php echo uilang("More") ?></a><div class="whatsmorecontent" style="display: none; padding: 5px; font-size: 12px;"><?php echo shorten_text(strip_tags($row["content"]), 50, " ...") ?><br><a class="textlink" href="<?php echo $baseurl ?>?post=<?php echo $row["postid"] ?>"><?php echo uilang("Continue") ?></a></div></div>
+										<div style="padding: 20px;"><a onclick="showmore(<?php echo $productindex ?>)" class="textlink whatsmorebutton" style="cursor: pointer; text-decoration: none;"><i class="fa fa-chevron-down"></i> <?php echo uilang("Description") ?></a><div class="whatsmorecontent" style="display: none; padding: 5px; font-size: 12px;"><?php echo $row["content"] ?></div></div>
 									</div>
 								</div>
 								<?php
@@ -557,8 +570,7 @@ if($websitetitle == ""){
 			
 			<div id="cartui">
 				<div style="max-width: 720px; margin: 0 auto;">
-				<h3 onclick='hidecartui()' style='color: <?php echo $maincolor ?>; cursor: pointer;'><i class='fa fa-arrow-left'></i> Back</h3>
-					<h1><i class='fa fa-shopping-cart'></i> <?php echo uilang("Shopping Cart") ?></h1>
+					<h1><i class='fa fa-shopping-cart'></i> <?php echo uilang("Order Page") ?></h1>
 					<div id="cartdata"></div>
 				</div>
 			</div>
@@ -648,6 +660,7 @@ if($websitetitle == ""){
 					var prodop = prod.find(".currentproductoption"+n+" option:selected").text()
 					if(prodop != "")
 						prodop = " - " + prodop
+					var prodshopid = prod.find(".tokoid").text()
 					var prodtitle = prod.find(".realproducttitle").text() + prodop
 					var prodprice = parseFloat(prod.find(".thiscurrentprice").text())
 					var prodquantity = parseFloat(prod.find(".productquantity").val())
@@ -658,6 +671,7 @@ if($websitetitle == ""){
 					function pushit(){
 						cartobject.push({
 							id : n,
+							shopid : prodshopid,
 							title : prodtitle,
 							price : prodprice,
 							quantity : prodquantity,
@@ -707,6 +721,7 @@ if($websitetitle == ""){
 				}
 				
 				var ordermessage = ""
+				var shopid = ""
 				
 				function showcartui(){
 
@@ -725,7 +740,7 @@ if($websitetitle == ""){
 						cartdata += "<div style='display: table; width: 100%;'>";
 						for(var i = 0; i < cartobject.length; i++){
 							var tmpttl = cartobject[i].price * cartobject[i].quantity
-							cartdata += "<div style='margin-bottom: 10px;'><div style='display: table-cell; vertical-align: middle;'><img src='<?php echo $baseurl ?>"+cartobject[i].image+"' style='max-width: 64px; border-radius: 5px; margin-bottom: 10px;'></div><div style='display: table-cell; vertical-align: middle; padding-left: 10px; padding-right: 10px; font-size: 14px;'>"+cartobject[i].title + " <?php echo $currencysymbol ?>" + tSep(parseFloat(cartobject[i].price).toFixed(<?php echo $deccount ?>)) + "</div><div style='display: table-cell; vertical-align: middle;'>*</div><div style='display: table-cell; vertical-align: top;'><input id='cartq"+i+"' onchange='modifycq("+i+")' class='productquantity' type='number' value=" + cartobject[i].quantity + " min=1 style='vertical-align: middle; display: inline-block; width: 60px; font-weight: bold; padding: 10px; margin: 5px; border-radius: 0px;' onkeyup='onlyNumbers(this)'></div><div style='display: table-cell; vertical-align: middle;'>=</div><div style='display: table-cell; vertical-align: middle;'><div style='padding-left: 5px; padding-right: 5px;'><?php echo $currencysymbol ?>" + tSep(tmpttl.toFixed(<?php echo $deccount ?>)) + "</div></div><div style='display: table-cell; vertical-align: middle; padding-left: 5px; padding-right: 5px;' onclick='removeitem("+i+")'><i class='fa fa-trash' style='color: red;'></i></div></div>"
+							cartdata += "<div style='margin-bottom: 10px;'><div style='display: table-cell; vertical-align: middle;'><img src='<?php echo $baseurl ?>"+cartobject[i].image+"' style='max-width: 64px; border-radius: 5px; margin-bottom: 10px;'></div><div style='display: table-cell; vertical-align: middle; padding-left: 10px; padding-right: 10px; font-size: 14px;'>"+cartobject[i].title + " <?php echo $currencysymbol ?>" + tSep(parseFloat(cartobject[i].price).toFixed(<?php echo $deccount ?>)) + "</div><div style='display: table-cell; vertical-align: middle;'>*</div><div style='display: table-cell; vertical-align: top;'><input id='cartq"+i+"' onchange='modifycq("+i+")' class='productquantity' type='number' value=" + cartobject[i].quantity + " min=1 style='vertical-align: middle; display: inline-block; width: 60px; font-weight: bold; padding: 10px; margin: 5px; border-radius: 0px;' onkeyup='onlyNumbers(this)'></div><div style='display: table-cell; vertical-align: middle;'>=</div><div style='display: table-cell; vertical-align: middle;'><div style='padding-left: 5px; padding-right: 5px;'><?php echo $currencysymbol ?>" + tSep(tmpttl.toFixed(<?php echo $deccount ?>)) + "</div></div></div>"
 							grandtotal += tmpttl
 							
 							ordermessage += "- " + cartobject[i].title + " x " + cartobject[i].quantity + " = <?php echo $currencysymbol ?> " + tmpttl.toFixed(<?php echo $deccount ?>) + "\n"
@@ -741,7 +756,7 @@ if($websitetitle == ""){
 					cartdata += "<label><?php echo uilang("Delivery Address") ?></label><input id='cdaddress' placeholder='<?php echo uilang("Delivery Address") ?>'>"
 					cartdata += "<label><?php echo uilang("Delivery Method") ?></label><select id='cdmethod'><?php echo uilang("Delivery Method") ?><option>Take Away</option><option>Home Delivery</option><option>Dining</option></select>"
 					cartdata += "<label><?php echo uilang("Order Notes") ?></label><textarea id='cartordernotes' placeholder='<?php echo uilang("Order Notes") ?>'></textarea>"
-					cartdata += "<div style='text-align: center;'><div class='buybutton' onclick='hidecartui()'><i class='fa fa-arrow-left'></i> <?php echo uilang("Back to Shop") ?></div><div class='buybutton' onclick='clearcart()'><i class='fa fa-times'></i> <?php echo uilang("Clear Cart") ?></div><div class='buybutton' onclick='chatnow()'><i class='fa fa-whatsapp'></i> <?php echo uilang("Order on WhatsApp") ?></div></div>"
+					cartdata += "<div style='text-align: center;'><div class='buybutton' onclick='hidecartui()'><i class='fa fa-arrow-left'></i> <?php echo uilang("Back") ?></div><div class='buybutton' onclick='chatnow()'><i class='fa fa-whatsapp'></i> <?php echo uilang("Order on WhatsApp") ?></div></div>"
 					$("#cartdata").html(cartdata)
 					$("#cartui").fadeIn()
 					savedata()
@@ -773,10 +788,11 @@ if($websitetitle == ""){
 					var cdmethod = $("#cdmethod").val()
 					
 					if(cdname != "" && cdmobile != "" && cdaddress != "" && cdmethod != ""){
-					
+						// alert(cartobject[0].shopid)
 						ordermessage += "<?php echo uilang("Name") ?>: " + cdname + "\n<?php echo uilang("Mobile") ?>: " + cdmobile + "\n<?php echo uilang("Address") ?>: " + cdaddress + "\n<?php echo uilang("Delivery Method") ?>: " + cdmethod + "\n" + "ORDER NOTES: " + $("#cartordernotes").val()
 						$.post("<?php echo $baseurl ?>ordernotes.php", {
-							"message" : ordermessage
+							"message" : ordermessage,
+							"shopid" : cartobject[0].shopid
 						}, function(data){
 							ordermessage = ordermessage.replaceAll("&", "and");
 							var omuri = encodeURI(ordermessage);
