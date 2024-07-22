@@ -17,8 +17,9 @@ if(isset($_POST["newposttitle"])){
 	$moreoptions = mysqli_real_escape_string($connection, $_POST["moreoptions"]);
 	$moreimages = mysqli_real_escape_string($connection, $_POST["moreimagesinput"]);
 	$currenttime = round(microtime(true) * 1000);
+	// Jika judul post dan konten post tidak kosong / kosong
 	if($newposttitle != "" && $newpostcontent != ""){
-		
+		// Pembuatan postid
 		$postid = substr(str_shuffle(str_repeat("abcdefghijklmnopqrstuvwxyz", 5)), 0, 10);
 		$newpicture = "";
 		

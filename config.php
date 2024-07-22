@@ -65,6 +65,7 @@ category VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL
 mysqli_query($connection, "CREATE TABLE IF NOT EXISTS $tablemessages (
 id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 date VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+tokoid INT(6) NOT NULL,
 message VARCHAR(1300) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL
 )");
 

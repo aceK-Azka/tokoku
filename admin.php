@@ -26,6 +26,7 @@ include("uilang.php");
 		<link rel="shortcut icon" href="<?php echo $baseurl ?>favicon.ico" type="image/x-icon">
 		<link rel="icon" href="<?php echo $baseurl ?>favicon.ico" type="image/x-icon">
 		<script src="jquery.min.js"></script>
+		<script type="text/javascript" src="<?php echo $baseurl ?>slick/slick.min.js"></script>
         <link href="https://fonts.googleapis.com/css2?family=Dosis:wght@300&display=swap" rel="stylesheet">
 		
 		<link rel="stylesheet" type="text/css" href="<?php echo $baseurl ?>assets/css/font-awesome.css">
@@ -98,17 +99,17 @@ include("uilang.php");
 						</div>
 						<div style="display: table-cell; padding: 25px; vertical-align: top; border-left: 1px solid <?php echo $maincolor ?>; ">
 							<?php
-							//newpost
+							//newpost | post baru
 							if(isset($_GET["newpost"])){
 								?>
 								<div class="postform">
 									<h1><?php echo uilang("Add Product") ?></h1>
 									<form action="postupload.php" method="post" enctype="multipart/form-data">
-										<label><i class="fa fa-edit"></i> <?php echo uilang("Title") ?></label>
-										<input name="newposttitle" placeholder="<?php echo uilang("Title") ?>">
-										<label><i class="fa fa-money"></i> <?php echo uilang("Price") ?></label>
-										<input type="number" step="0.01" name="newpostnormalprice" placeholder="<?php echo uilang("Price") ?>">
-										<label><i class="fa fa-money"></i> <?php echo uilang("Discount Price") ?></label>
+										<label><i class="fa fa-edit"></i> <?php echo uilang("Title") . ' - ' . uilang("This field must be filled out") ?></label>
+										<input name="newposttitle" placeholder="<?php echo uilang("Title") ?>" required>
+										<label><i class="fa fa-money"></i> <?php echo uilang("Price") . ' - ' . uilang("This field must be filled out") ?></label>
+										<input type="number" step="0.01" name="newpostnormalprice" placeholder="<?php echo uilang("Price") ?>" required>
+										<label><i class="fa fa-money"></i> <?php echo uilang("Discount Price") . ' - ' . uilang("Leave blank if unnecessary") ?></label>
 										<input type="number" step="0.01" name="newpostdiscountprice" placeholder="<?php echo uilang("Discount Price") ?>">
 										<label><i class="fa fa-tag"></i> <?php echo uilang("Category") ?></label>
 										<select name="catid">
@@ -126,19 +127,23 @@ include("uilang.php");
 											<option value="0" selected="selected"><?php echo uilang("Uncategorized") ?></option>
 										</select>
 										<label><i class="fa fa-tag"></i> <?php echo uilang("Shop") ?></label>
-										<select name="tokoid">
+										<select name="tokoid" required>
 											<?php
 											$shopsql = "SELECT * FROM $tableshop ORDER BY nama ASC";
 											$shopresult = mysqli_query($connection, $shopsql);
 											if(mysqli_num_rows($shopresult) > 0){
+											?>
+											<option value="" selected="selected"><?php echo uilang("Choose a shop") ?></option>
+												<?php
 												while($shoprow = mysqli_fetch_assoc($shopresult)){
 													?>
 													<option value="<?php echo $shoprow["id"] ?>"><?php echo $shoprow["nama"] . " | " . $shoprow["nomor_wa"] ?></option>
 													<?php
 												}
-											}
+											} else {
 											?>
-											<option value="0" selected="selected"><?php echo uilang("choose a shop") ?></option>
+											<option value="" selected="selected"><?php echo uilang("Please add shop first") ?></option>
+											<?php } ?>
 										</select>
 										<label><i class="fa fa-file"></i> <?php echo uilang("Content") ?></label>
 										<textarea name="newpostcontent" style="height: 250px;"></textarea>
@@ -431,8 +436,8 @@ include("uilang.php");
 									<form method="post">
 										<label><i class="fa fa-tag"></i> <?php echo uilang("New shop") ?></label>
 										<input type="text" placeholder="<?php echo uilang("New shop") ?>" name="newshop">
-										<label><i class="fa fa-tag"></i> <?php echo uilang("New whatsApp Number") ?></label>
-										<input type="text" placeholder="<?php echo uilang("New whatsApp Number") ?>" name="nomor_wa">
+										<label><i class="fa fa-tag"></i> <?php echo uilang("New WhatsApp Number") ?></label>
+										<input type="text" placeholder="<?php echo uilang("New WhatsApp Number") ?>" name="nomor_wa">
 										<input type="submit" value="<?php echo uilang("Submit") ?>" class="submitbutton">
 									</form>
 									<?php
@@ -856,11 +861,119 @@ include("uilang.php");
 								<?php
 								}
 							}
-							//
+
+							// Tabel Pesanan
+							
 							else if(isset($_GET["orders"])){
 								?>
-								<h1><?php echo uilang("Order") ?></h1>
+							
+							<style>
+								
+								.teks {
+									text-align: center;
+								}
+								.print-header{
+									display: none;
+								}
+								@media print {
+									.inlinecenterblock{
+										display: none;
+									}
+									.adminmenubar{
+										display: none;
+									}
+									.teks{
+										display: none;
+									}
+									.tombol{
+										display: none;
+									}
+									.barsbutton{
+										display: none;
+									}
+									.print-header {
+										text-align: center;
+										font-size: 18px;
+										font-weight: bold;
+										margin-bottom: 20px;
+									}
+								}
+							</style>
+							<div class="inlinecenterblock floatright">
+								<select id="monthpicker" onchange="searchMonth()">
+									<option value=""><?php echo uilang("Month Search") . "..." ?></option>
+									<option value="-01-"><?php echo uilang("January") ?></option>
+									<option value="-02-"><?php echo uilang("February") ?></option>
+									<option value="-03-"><?php echo uilang("March") ?></option>
+									<option value="-04-"><?php echo uilang("April") ?></option>
+									<option value="-05-"><?php echo uilang("May") ?></option>
+									<option value="-06-"><?php echo uilang("June") ?></option>
+									<option value="-07-"><?php echo uilang("July") ?></option>
+									<option value="-08-"><?php echo uilang("August") ?></option>
+									<option value="-09-"><?php echo uilang("September") ?></option>
+									<option value="-10-"><?php echo uilang("October") ?></option>
+									<option value="-11-"><?php echo uilang("November") ?></option>
+									<option value="-12-"><?php echo uilang("December") ?></option>
+								</select>
+							</div>
+
+							<div class="inlinecenterblock floatright">
+								<div style="border-radius: 50px; display: table; box-sizing: border-box; width: 100%; border: 2px solid <?php echo $maincolor ?>;">
+									<div style="display: table-cell; width: 50px; text-align: center;">
+										<i class="fa fa-search"></i>
+									</div>
+									<div style="display: table-cell">
+										<input onkeyup="quicksearchTable()" id="quicksearch" placeholder="<?php echo uilang("Search Shop") ?>..." style="border: none; background-color: inherit; outline: none; margin: 0px; padding: 10px;">
+									</div>
+									<div style="display: table-cell; width: 50px; text-align: center; cursor: pointer;" onclick="clearSearchInput()" id="clearsearch">
+										<i class="fa fa-times-circle"></i>
+									</div>
+								</div>
+							</div>
+							<!-- <button class="tombol"id="printButton">Cetak</button> -->
+							<button class="tombol " id="printButton">
+    							<img src="images/printer.png" alt="Logo Cetak" style="width: 30px; height: 30px;">
+							</button>
+
+
+
+							<script>
+							document.addEventListener('DOMContentLoaded', function() {
+								// Seleksi tombol cetak
+								var printButton = document.getElementById('printButton');
+
+								// Tambahkan event listener untuk menangani klik tombol
+								printButton.addEventListener('click', function() {
+									// Pencetakan halaman saat tombol ditekan
+									window.print();
+								});
+
+								// Tambahkan event listener untuk menangani kombinasi Ctrl + P
+								document.addEventListener('keydown', function(event) {
+									if (event.ctrlKey && event.key === 'p') {
+										// Cetak halaman jika Ctrl + P ditekan
+										window.print();
+									}
+								});
+							});
+							</script>
+								<div class="print-header">
+									Laporan Penjualan
+								</div>
+								<h1 class="teks"><?php echo uilang("Order") ?></h1>
 								<?php
+								// Function to modify text between dashes
+								function modifyTextBetweenDashes($text, $replacement) {
+									$pattern = "/\- ([^-]*) \-/"; // Regex pattern to match text between dashes
+									return preg_replace($pattern, "- $replacement -", $text);
+								}
+								// Function to retrieve text
+								function getTextDashes($text) {
+									$pattern = "/\-([^-]*)\-/"; // Regex pattern to match text between dashes
+									// Find the desired text
+									preg_match($pattern, $text, $matches);
+									return $matches[1];
+								}
 								$sql = "SELECT * FROM $tablemessages ORDER BY id DESC";
 								$result = mysqli_query($connection, $sql);
 								if($result){
@@ -868,9 +981,10 @@ include("uilang.php");
 										echo "<p>" . uilang("There is no order recorded.") . "</p>";
 									}else{
 										?>
-										<table style="width: 100%">
+										<table style="width: 100%" id="orderTable">
 											<tr>
-												<th style="width: 100px;"><?php echo uilang("Date") ?></th>
+												<th style="width: 50px;"><?php echo uilang("Date") ?></th>
+												<th style="width: 50px;"><?php echo uilang("Shop Name") ?></th>
 												<th style="width: 100px;"><?php echo uilang("Order") ?></th>
 											</tr>
 											<?php
@@ -878,10 +992,41 @@ include("uilang.php");
 												$mil = $row["date"];
 												$seconds = $mil / 1000;
 												$postdate = date("d-m-Y", $seconds);
+												$finaltext = ""; // menyiapkan teks kosong
+												$linecount = 0; // counter baris
+												$text = $row["message"]; // mengambil teks pesan
+												$lines = explode("\n", $text); // mengubah teks ke dalam array kalimat per baris
+												foreach($lines as $line) {
+													if($linecount == 2) {
+														// ambil nama post
+														$thismenu = trim(getTextDashes($line));
+														// ambil nama site per pesanan ($site2) dan judul menu ($title) jika nama post tidak diubah
+														$sql2 = "SELECT * FROM $tableposts WHERE title REGEXP '.*$thismenu.*'";
+														$result2 = mysqli_query($connection, $sql2);
+														if (mysqli_num_rows($result2) > 0) {
+															$row2 = mysqli_fetch_assoc($result2);
+															$site2 = $baseurl . "?post=" . $row2["postid"];
+															$title = $row2["title"];
+															$thismenu = "<a target=\"_blank\" href='" . $site2 . '\'> <i class="fa fa-external-link"></i>' . $title . '</a>';
+															// Modify the retrieved content
+															$finaltext .= modifyTextBetweenDashes($line, $thismenu) . "\n";
+															$linecount++;
+															continue;
+														}
+														$linecount++;
+													}
+													$finaltext .= $line . "\n";
+													$linecount++;
+												}
+												// ambil nama toko
+												$sql3 = "SELECT nama FROM $tableshop WHERE id = " . $row["tokoid"];
+												$result3 = mysqli_query($connection, $sql3);
+												$row3 = mysqli_fetch_assoc($result3);
 												?>
 												<tr>
-													<td><?php echo $postdate ?></td>
-													<td><?php echo nl2br($row["message"]) ?></td>
+													<td id="tanggal"><?php echo $postdate ?></td>
+													<td id="namatoko"><?php echo $row3["nama"] ?></td>
+													<td id="pesanan" style="white-space: pre-wrap;"><?php echo $finaltext ?></td>
 												</tr>
 												<?php
 											}
@@ -889,7 +1034,11 @@ include("uilang.php");
 										</table>
 										<?php
 									}
-								}
+								} ?>
+								<div class="total" id="totalprice">
+									
+								</div>
+							<?php
 							}
 							//home
 							else{
@@ -970,7 +1119,192 @@ include("uilang.php");
 				<div id="imagedisplayer" onclick="hideimagedisplayer()"></div>
 				
 				<script>
+					function numberFormat(number, thousands_sep = ',') {
+						// Convert the number to a string
+						number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
+
+						// Check if the number is finite
+						if (!isFinite(+number)) {
+							return number;
+						}
+
+						// Separate the integer and decimal parts
+						const parts = number.split('.');
+
+						// Format the integer part with thousands separators
+						parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, thousands_sep);
+
+						// Join the formatted parts with the decimal point
+						return parts;
+					}
+					// Hapus bagian "Total Semua"
+					function removeTotalPrice() {
+						const divElement = document.getElementById("totalprice")
+						const h1Element = divElement.querySelector("h1")
+						h1Element?.remove()
+					}
+					// Mencari bulan pesanan (select-option)
+				  function searchMonth() {
+						// Get the selected option
+						const selectedOption = $("#monthpicker").val()
+
+						if (selectedOption !== "") {
+							$("#tanggal").each(function () {
+								var content = $("#tanggal").text().toLowerCase()
+								if (content.indexOf(selectedOption) > -1) {
+									$("table tr").show()
+									const table = $("#orderTable")
+									let totalPrice = 0
+									let lineCount = 0
+									var totaldata = ""
+									// Akses tiap row tabel
+									table.find("tr:visible").each(function() {
+										lineCount = 0
+										// Access the fourth cell (assuming price is in the 4th cell)
+										const priceCell = $(this).find("td:nth-child(3)");
+										linesArray = priceCell.text().replace(/<br[^>]*>/g, "\n").split(/\r?\n/)
+										// Akses kata dalam baris
+										linesArray.forEach(line => {
+											// Split the line into words
+											const words = line.split(" ")
+
+											if (lineCount === 3) {  // Atur baris ke-4
+												// Ekstrak dan format price
+												const price = parseFloat(words[4].replace(/[^0-9.,]/g, ""))
+												totalPrice += price
+											}
+											lineCount++
+										});
+									});
+									// Update total price element with formatted value (assuming you have a function called numberFormat)
+									totaldata += "<h1><?php echo uilang("Total") . " : " . $currencysymbol . " " ?>"
+									totaldata += numberFormat(totalPrice)
+									totaldata += "</h1>"
+									$("#totalprice").html(totaldata)
+								} else {
+									$("table tr").hide()
+									removeTotalPrice()
+								}
+							});
+							$("#quicksearch").prop("disabled", true) // Search text input disabled
+							$("#clearsearch").hide() // Clear search input disappeared
+						} else {
+							$("table tr").show()
+							$("#quicksearch").prop("disabled", false) // Search text input enabled
+							$("#clearsearch").show() // Clear search input appeared
+							removeTotalPrice()
+						}
+					}
+					// Mencari nama toko (input teks)
+					// function quicksearchTable() {
+					// 	var keyword = $("#quicksearch").val().toLowerCase()
+
+					// 	if (keyword.length > 0) {
+					// 		$("table tr").each(function () {
+					// 			var content = $(this).find("td:nth-child(2)").text().toLowerCase()
+					// 			if (content.indexOf(keyword) > -1) {
+					// 				$("table tr td").show()
+					// 				getTotalPrice()
+					// 			} else {
+					// 				$("table tr td").hide()
+					// 				removeTotalPrice()
+					// 			}
+					// 		});
+					// 		$("#monthpicker").prop("disabled", true)
+					// 	} else {
+					// 		$("table tr td").show()
+					// 		$("#monthpicker").prop("disabled", false)
+					// 		removeTotalPrice()
+					// 	}
+					// }
+
+					function quicksearchTable() {
+						var keyword = $("#quicksearch").val().toLowerCase();
+
+						if (keyword.length > 0) {
+							$("table tr").each(function() {
+								// Search all table data cells (tds) within the current row
+								var allTds = $(this).find("td");
+								var found = false; // Flag to track if keyword is found in any td
+
+								// Iterate through all tds in the current row
+								for (var i = 0; i < allTds.length; i++) {
+									var content = $(allTds[i]).text().toLowerCase();
+									if (content.indexOf(keyword) > -1) {
+										found = true; // Keyword found in at least one td
+										break; // Exit the loop if found (optional optimization)
+									}
+								}
+
+								// Show or hide the row based on the found flag
+								if (found) {
+									$(this).show();
+									getTotalPrice();
+								} else {
+									$(this).hide();
+								}
+							});
+							$("#monthpicker").prop("disabled", true);
+						} else {
+							$("table tr").show();
+							$("#monthpicker").prop("disabled", false);
+							removeTotalPrice();
+						}
+					}
 				
+				  function clearSearchInput(){
+				  	$("#quicksearch").val("")
+				  	quicksearchTable();
+				  }	
+
+					function getTotalPrice() {
+						// const table = document.getElementById('orderTable')
+						// const tableRows = table.querySelectorAll('tr')
+						const table = $("#orderTable")
+						let totalPrice = 0
+						let lineCount = 0
+						var totaldata = ""
+						// Akses tiap row tabel
+						table.find("tr:visible").each(function() {
+							lineCount = 0
+							// Access the fourth cell (assuming price is in the 4th cell)
+							const priceCell = $(this).find("td:nth-child(3)");
+							linesArray = priceCell.html().replace(/<br[^>]*>/g, "\n").split(/\r?\n/)
+							// Akses kata dalam baris
+							linesArray.forEach(line => {
+								// Split the line into words
+								const words = line.split(" ")
+
+								if (lineCount === 3) {  // Atur baris ke-4
+									// Ekstrak dan format price
+									const price = parseFloat(words[4].replace(/[^0-9.,]/g, ""))
+									totalPrice += price
+								}
+								lineCount++
+							});
+						});
+						// Update total price element with formatted value (assuming you have a function called numberFormat)
+						totaldata += "<h1><?php echo uilang("Total") . " : " . $currencysymbol . " " ?>"
+						totaldata += numberFormat(totalPrice)
+						totaldata += "</h1>"
+						$("#totalprice").html(totaldata)
+					}
+
+					// try{
+					// 	if(location.href.split("#")[1].split("=")[0] == "search"){
+					// 		if(location.href.split("#")[1].split("=")[1] != ""){
+					// 			$("#quicksearch").val(location.href.split("#")[1].split("=")[1])
+					// 			quicksearch()
+					// 		}
+					// 	}else if(location.href.split("#")[1].split("=")[0] == "filtercat"){
+					// 		if(location.href.split("#")[1].split("=")[1] != ""){
+					// 			filtercategory(location.href.split("#")[1].split("=")[1]);
+					// 		}
+					// 	}
+					// }catch(e){
+					// 	console.log(e)
+					// }
+
 					function showimagepicker(){
 						$("body").append("<div id='imagepickerui'><h2 onclick='closeimagepicker()' style='cursor: pointer;'><i class='fa fa-arrow-left'></i> Back</h2><div id='imagepickercontent'>Please wait...</div>")
 						$.get("imagepicker.php", function(data){
